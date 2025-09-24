@@ -15,7 +15,7 @@ from dingo.model import Model
 def dingo_demo(
         uploaded_file,
         dataset_source, data_format, input_path, max_workers, batch_size,
-        column_id, column_prompt, column_content, column_image,
+        column_id, column_prompt, column_content, column_image, column_context,
         rule_list, prompt_list, scene_list,
         model, key, api_url
 ):
@@ -81,6 +81,8 @@ def dingo_demo(
             input_data['dataset']['field']['id'] = column_id
         if column_prompt:
             input_data['dataset']['field']['prompt'] = column_prompt
+        if column_context:
+            input_data['dataset']['field']['context'] = column_context
         if column_image:
             input_data['dataset']['field']['image'] = column_image
 
@@ -95,7 +97,8 @@ def dingo_demo(
         for item in detail:
             new_detail.append(item)
         if summary['output_path']:
-            shutil.rmtree(summary['output_path'])
+            #shutil.rmtree(summary['output_path'])
+            pass
 
         # 返回两个值：概要信息和详细信息
         return json.dumps(summary, indent=4), new_detail
@@ -374,6 +377,12 @@ if __name__ == '__main__':
                             label="column_content",
                             visible=False
                         )
+                        column_context = gr.Textbox(
+                            value="",
+                            placeholder="Column name of context in the input file. If exists multiple levels, use '.' separate",
+                            label="column_context",
+                            visible=False
+                        )
                         column_image = gr.Textbox(
                             value="",
                             placeholder="Column name of image in the input file. If exists multiple levels, use '.' separate",
@@ -422,7 +431,7 @@ if __name__ == '__main__':
             comp.change(
                 fn=update_column_fields,
                 inputs=[rule_list, prompt_list],
-                outputs=[column_id, column_prompt, column_content, column_image]
+                outputs=[column_id, column_prompt, column_content, column_image, column_context]
             )
 
         submit_single.click(
@@ -430,7 +439,7 @@ if __name__ == '__main__':
             inputs=[
                 uploaded_file,
                 dataset_source, data_format, input_path, max_workers, batch_size,
-                column_id, column_prompt, column_content, column_image,
+                column_id, column_prompt, column_content, column_image, column_context,
                 rule_list, prompt_list, scene_list,
                 model, key, api_url
             ],

@@ -49,18 +49,29 @@ class RuleHallucinationHHEM(BaseRule):
     model = None
 
     @classmethod
-    def load_model(cls):
-        """Load HHEM-2.1-Open model"""
+    def load_model(cls, model_path: str = "./hallucination_evaluation_model"):
+        """Load HHEM-2.1-Open model from local path or Hugging Face"""
         if cls.model is None:
             try:
                 from transformers import AutoModelForSequenceClassification
 
-                log.info("Loading HHEM-2.1-Open model...")
-                cls.model = AutoModelForSequenceClassification.from_pretrained(
-                    'vectara/hallucination_evaluation_model',
-                    trust_remote_code=True
-                )
-                log.info("✅ HHEM-2.1-Open model loaded successfully")
+                # Try to load from local path first, fallback to Hugging Face if not found
+                import os
+                if os.path.exists(model_path):
+                    log.info(f"Loading HHEM-2.1-Open model from local path: {model_path}")
+                    cls.model = AutoModelForSequenceClassification.from_pretrained(
+                        model_path,
+                        trust_remote_code=True,
+                        local_files_only=True
+                    )
+                    log.info("✅ HHEM-2.1-Open model loaded successfully from local path")
+                else:
+                    log.info(f"Local model not found at {model_path}, downloading from Hugging Face...")
+                    cls.model = AutoModelForSequenceClassification.from_pretrained(
+                        'vectara/hallucination_evaluation_model',
+                        trust_remote_code=True
+                    )
+                    log.info("✅ HHEM-2.1-Open model loaded successfully from Hugging Face")
 
             except ImportError:
                 raise ImportError(
@@ -71,7 +82,7 @@ class RuleHallucinationHHEM(BaseRule):
                 raise RuntimeError(f"Failed to load HHEM model: {e}")
 
     @classmethod
-    def eval(cls, input_data: Data) -> ModelRes:
+    def eval(cls, input_data: Data, model_path: str = "./hallucination_evaluation_model") -> ModelRes:
         """
         Evaluate hallucination using HHEM-2.1-Open model.
 
@@ -98,7 +109,7 @@ class RuleHallucinationHHEM(BaseRule):
             contexts = input_data.context
 
         # Load model if not already loaded
-        cls.load_model()
+        cls.load_model(model_path)
 
         # Prepare context(s)
         if isinstance(contexts, list):
@@ -211,14 +222,14 @@ class RuleHallucinationHHEM(BaseRule):
             return result
 
     @classmethod
-    def evaluate_with_detailed_output(cls, input_data: Data) -> dict:
+    def evaluate_with_detailed_output(cls, input_data: Data, model_path: str = "./hallucination_evaluation_model") -> dict:
         """
         Evaluate with detailed output for analysis.
 
         Returns:
             Dictionary with detailed evaluation metrics
         """
-        result = cls.eval(input_data)
+        result = cls.eval(input_data, model_path)
 
         return {
             "overall_score": getattr(result, 'score', 0.0),
@@ -231,7 +242,7 @@ class RuleHallucinationHHEM(BaseRule):
         }
 
     @classmethod
-    def batch_evaluate(cls, data_list: List[Data]) -> List[ModelRes]:
+    def batch_evaluate(cls, data_list: List[Data], model_path: str = "./hallucination_evaluation_model") -> List[ModelRes]:
         """
         Batch evaluation for efficiency.
 
@@ -242,11 +253,11 @@ class RuleHallucinationHHEM(BaseRule):
             List of ModelRes objects
         """
         # Load model once for batch processing
-        cls.load_model()
+        cls.load_model(model_path)
 
         results = []
         for data in data_list:
-            result = cls.eval(data)
+            result = cls.eval(data, model_path)
             results.append(result)
 
         return results
