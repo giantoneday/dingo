@@ -57,6 +57,8 @@ class RuleHallucinationHHEM(BaseRule):
 
                 # Try to load from local path first, fallback to Hugging Face if not found
                 import os
+                log.info(f"Current working directory: {os.getcwd()}")
+
                 if os.path.exists(model_path):
                     log.info(f"Loading HHEM-2.1-Open model from local path: {model_path}")
                     cls.model = AutoModelForSequenceClassification.from_pretrained(
