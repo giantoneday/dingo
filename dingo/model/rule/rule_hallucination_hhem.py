@@ -121,9 +121,9 @@ class RuleHallucinationHHEM(BaseRule):
         try:
             # Use HHEM model's official predict() method
             # This returns consistency scores (0=hallucinated, 1=consistent)
-            log.info(f"hhem begin: len: {len(pairs[0])} {len(pairs[0][1])}")
+            log.info(f"hhem begin: len:  {len(pairs[0][0])} {len(pairs[0][1])}")
             scores = cls.model.predict(pairs)
-            log.info(f"hhem result: len: {len(pairs[0])} {len(pairs[0][1])} {scores}")
+            log.info(f"hhem result: len: {len(pairs[0][0])} {len(pairs[0][1])} {scores}")
 
             # Convert to list if tensor
             consistency_scores = scores.tolist() if hasattr(scores, 'tolist') else list(scores)
