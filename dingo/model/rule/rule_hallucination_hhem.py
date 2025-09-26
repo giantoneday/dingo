@@ -14,6 +14,8 @@ Key advantages of HHEM-2.1-Open:
 import json
 from typing import List, Union
 
+from transformers import torch
+
 from dingo.config.input_args import EvaluatorRuleArgs
 from dingo.io import Data
 from dingo.model import Model
@@ -121,8 +123,13 @@ class RuleHallucinationHHEM(BaseRule):
         try:
             # Use HHEM model's official predict() method
             # This returns consistency scores (0=hallucinated, 1=consistent)
-            scores = cls.model.predict(pairs)
-
+            results = []
+            for i, pair in enumerate(pairs):
+                result = cls.model.predict([pair])  # predict expects a list of pairs
+                log.info(f"Pair {i}: {result}")
+                results.append(result)
+            scores = torch.cat(results, dim=0) #cls.model.predict(pairs)
+            log.info(f"scores shape: {scores.shape if hasattr(scores, 'shape') else 'N/A'}")
             # Convert to list if tensor
             consistency_scores = scores.tolist() if hasattr(scores, 'tolist') else list(scores)
 
