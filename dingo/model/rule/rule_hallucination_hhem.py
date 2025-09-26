@@ -10,11 +10,10 @@ Key advantages of HHEM-2.1-Open:
 - Fast processing (~1.5s for 2k tokens on modern CPU)
 - No API costs or rate limits
 """
-
+import torch
 import json
 from typing import List, Union
 
-from transformers import torch
 
 from dingo.config.input_args import EvaluatorRuleArgs
 from dingo.io import Data
