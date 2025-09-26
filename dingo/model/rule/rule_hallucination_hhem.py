@@ -125,7 +125,7 @@ class RuleHallucinationHHEM(BaseRule):
             results = []
             for i, pair in enumerate(pairs):
                 result = cls.model.predict([pair])  # predict expects a list of pairs
-                log.info(f"Pair {i}: {result}")
+                log.info(f"hhem pair {i}: len: {len(pair[0])} {len(pair[1])} {result}")
                 results.append(result)
             scores = torch.cat(results, dim=0) #cls.model.predict(pairs)
             log.info(f"scores shape: {scores.shape if hasattr(scores, 'shape') else 'N/A'}")

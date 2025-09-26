@@ -11,7 +11,7 @@ class LogConfig(BaseModel):
     """
 
     filename: Optional[str] = None
-    level: Optional[str] = "warning"
+    level: Optional[str] = "info"
     fmt: Optional[
         str
     ] = "[%(asctime)s][%(levelname)s] %(pathname)s[line:%(lineno)d] -: %(message)s"
