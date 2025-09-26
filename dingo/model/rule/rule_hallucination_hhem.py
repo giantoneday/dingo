@@ -123,9 +123,9 @@ class RuleHallucinationHHEM(BaseRule):
             # Use HHEM model's official predict() method
             # This returns consistency scores (0=hallucinated, 1=consistent)
             results = []
-            for i, pair in enumerate(pairs):
+            for pair in pairs:
                 result = cls.model.predict([pair])  # predict expects a list of pairs
-                log.info(f"hhem pair {i}: len: {len(pair[0])} {len(pair[1])} {result}")
+                log.info(f"hhem result: len: {len(pair[0])} {len(pair[1])} {result}")
                 results.append(result)
             scores = torch.cat(results, dim=0) #cls.model.predict(pairs)
             log.info(f"scores shape: {scores.shape if hasattr(scores, 'shape') else 'N/A'}")
